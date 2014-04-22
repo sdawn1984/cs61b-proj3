@@ -45,7 +45,7 @@ public class WUGraph {
    * Running time:  O(1).
    */
   public int edgeCount(){
-	  return this.edges;
+	  return this.eList.size();   
   }
 
   /**
@@ -61,7 +61,26 @@ public class WUGraph {
    * Running time:  O(|V|).
    */
   public Object[] getVertices(){
-	  return new Object[9];
+	  
+	  Object[] vertices = new Object[this.keys.length()];   
+	  
+	  try{
+		  DListNode first = (DListNode)this.keys.front();
+		  int counter = 0;
+		  while(first != null){
+			  
+			  try{
+				  vertices[counter] = ((VertexPair)first.item()).object1;
+				  
+				  first = (DListNode)first.next();
+				  counter++;
+			  } catch(Exception e){
+				  break;
+			  }
+		  }
+	  } catch(Exception e){}
+	  
+	  return vertices;
   }
 
   /**
@@ -74,7 +93,7 @@ public class WUGraph {
   public void addVertex(Object vertex){
 	  
 	  if(this.aList.find(vertex) == null){
-		  this.aList.insert(vertex, new DList());
+		  this.aList.insert(vertex, this.keys.insertBack(new VertexPair(vertex, new DList())));
 	  }
   }
 
@@ -86,28 +105,50 @@ public class WUGraph {
    * Running time:  O(d), where d is the degree of "vertex".
    */
   public void removeVertex(Object vertex){
-	  DList list = (DList)this.aList.remove(vertex).value();
-	  if(list != null){
+	  Entry entry = this.aList.remove(vertex);
+	  if(entry != null){
+		  DListNode node = (DListNode)entry.value();
+		  DList list = (DList)((VertexPair)node.item()).object2;
 		  try{
 			  DListNode first = (DListNode)list.front();
 			  while(first != null){
 
 				  try{
 					  VertexPair key = new VertexPair(vertex, first.item());
-					  VertexPair pair = (VertexPair)((VertexPair)this.eList.find(key).value()).object1;   
-					  if(pair != null){
-						  if(((DListNode)pair.object1).item().equals(vertex)){
-							  ((DListNode)pair.object2).remove();
+					  Entry e = this.eList.find(key); 
+					  if(e != null){
+						  VertexPair pair = (VertexPair)((VertexPair)e.value()).object1;   
+						  DListNode next = null;
+						  try{
+							  next = (DListNode)first.next();
+						  } catch(Exception e1){}
+						  if(((DListNode)pair.object1).item().equals(vertex)){   
+							  if((DListNode)pair.object2 == first){
+								  first = (DListNode)first.next();
+								  ((DListNode)pair.object2).remove();
+							  } else{
+								  ((DListNode)pair.object2).remove();
+								  first = (DListNode)first.next();
+							  }
 						  } else{
-							  ((DListNode)pair.object1).remove();
+							  if((DListNode)pair.object1 == first){
+								  first = (DListNode)first.next();
+								  ((DListNode)pair.object1).remove();   
+							  } else{
+								  ((DListNode)pair.object1).remove();
+								  first = (DListNode)first.next();
+							  }
 						  }
+						  this.eList.remove(key);
+					  } else{
+
+						  first = (DListNode)first.next();
 					  }
-					  
-					  first = (DListNode)first.next();
 				  } catch(Exception e){
 					  break;
 				  }
 			  }
+			  node.remove();
 		  } catch(Exception e){}
 	  }
   }
@@ -130,8 +171,10 @@ public class WUGraph {
    * Running time:  O(1).
    */
   public int degree(Object vertex){
-	  DList list = (DList)this.aList.find(vertex).value();   
-	  if(list != null){
+	  Entry e = this.aList.find(vertex);
+	  
+	  if(e != null){
+		  DList list = (DList)((VertexPair)((DListNode)e.value()).item()).object2;   
 		  return list.length();
 	  }
 	  
@@ -157,33 +200,46 @@ public class WUGraph {
    * Running time:  O(d), where d is the degree of "vertex".
    */
   public Neighbors getNeighbors(Object vertex){
-	  Neighbors one = new Neighbors();
-	  Object[] neighborList;
-	  int[] weights;
+	  Neighbors one = null;
+	  Entry entry = this.aList.find(vertex);
 	  
-	  DList neighbors = (DList)this.aList.find(vertex).value();   
-	  neighborList = new Object[neighbors.length()];
-	  weights = new int[neighborList.length];
-	  int counter = 0;
-	  try{
-		  DListNode first = (DListNode)neighbors.front();
-		  while(first != null){
-			  try{
-				  neighborList[counter] = first;
-				  VertexPair key = new VertexPair(vertex, first);   
-				  weights[counter] = (Integer)((VertexPair)this.eList.find(key).value()).object2;   
-				  
-				  first = (DListNode)first.next();
-				  counter++;
-			  } catch(Exception e){
-				  break;
-			  }
+	  if(entry != null){
+		  DList neighbors = (DList)((VertexPair)((DListNode)entry.value()).item()).object2;
+		  System.out.println("nei " + neighbors);
+		  one = new Neighbors();
+		  Object[] neighborList;
+		  int[] weights;  
+	  
+		  neighborList = new Object[neighbors.length()];   
+		  weights = new int[neighborList.length];
+		  
+		  if(neighborList.length == 0){
+			  return null;
 		  }
-	  } catch(Exception e){}
+		  
+		  int counter = 0;
+		  try{
+			  DListNode first = (DListNode)neighbors.front();
+			  while(first != null){
+				  try{
+					  neighborList[counter] = first;
+					  VertexPair key = new VertexPair(vertex, first);   
+					 // weights[counter] = (Integer)((VertexPair)this.eList.find(key).value()).object2;   
+					  
+					  first = (DListNode)first.next();
+					  counter++;
+				  } catch(Exception e){
+					  System.out.println(e);
+					  break;
+				  }
+			  }
+		  } catch(Exception e){}
+		  
+		  
+		  one.neighborList = neighborList;
+		  one.weightList = weights;
+	  }
 	  
-	  
-	  one.neighborList = neighborList;
-	  one.weightList = weights;
 	  return one;
   }
 
@@ -197,12 +253,26 @@ public class WUGraph {
    * Running time:  O(1).
    */
   public void addEdge(Object u, Object v, int weight){
-	  VertexPair pair = new VertexPair(u, v);
-	  DListNode first = (DListNode)((DList)this.aList.find(u).value()).insertBack(v);   
-	  DListNode sec = (DListNode)((DList)this.aList.find(v).value()).insertBack(u);
 	  
-	  VertexPair option = new VertexPair(new VertexPair(first, sec), weight);
-	  this.eList.insert(pair, option);
+	  //check if vertices exist
+	  if(this.aList.find(u) != null && this.aList.find(v) != null){
+		  
+		  //check if edge exists
+		  if(this.eList.find(new VertexPair(u, v)) != null){
+			  ((VertexPair)this.eList.find(new VertexPair(u, v)).value()).object2 = weight;
+		  } else{
+			  VertexPair pair = new VertexPair(u, v);
+			  DListNode first = (DListNode)((DList)((VertexPair)((DListNode)this.aList.find(u).value()).item()).object2).insertBack(v);     
+			  DListNode sec = first;
+			  if(u != v){
+				  sec = (DListNode)((DList)((VertexPair)((DListNode)this.aList.find(v).value()).item()).object2).insertBack(u);
+			  }
+			  
+			  VertexPair option = new VertexPair(new VertexPair(first, sec), weight);
+			  this.eList.insert(pair, option);
+			  this.edges++;
+		  }
+	  }
   }
 
   /**
@@ -214,12 +284,14 @@ public class WUGraph {
    * Running time:  O(1).
    */
   public void removeEdge(Object u, Object v){
-	  VertexPair pair = (VertexPair)this.eList.remove(new VertexPair(u,v)).value();   
-	  if(pair != null){
+	  if(this.eList.find(new VertexPair(u,v)) != null){
+	  	  VertexPair pair = (VertexPair)this.eList.remove(new VertexPair(u,v)).value();   
 		  VertexPair nodes = (VertexPair)pair.object1;
 		  
 		  ((DListNode)nodes.object1).remove();
-		  ((DListNode)nodes.object2).remove();
+		  if(nodes.object1 != nodes.object2){
+			  ((DListNode)nodes.object2).remove();
+		  }
 	  }
   }
 
@@ -231,6 +303,7 @@ public class WUGraph {
    * Running time:  O(1).
    */
   public boolean isEdge(Object u, Object v){
+	  //System.out.println("hey! " + this.eList.find(new VertexPair(u,v)));      
 	  return this.eList.find(new VertexPair(u,v)) != null;
   }
 
@@ -249,8 +322,9 @@ public class WUGraph {
    * Running time:  O(1).
    */
   public int weight(Object u, Object v){
-	  VertexPair pair = (VertexPair)this.eList.find(new VertexPair(u,v)).value();   
-	  if(pair != null){
+	  Entry entry = this.eList.find(new VertexPair(u,v));   
+	  if(entry != null){
+		  VertexPair pair = (VertexPair)entry.value();  
 		  return (Integer)pair.object2;
 	  }
 	  
