@@ -4,6 +4,7 @@ package graphalg;
 
 import graph.*;
 import set.*;
+import dict.*;
 
 /**
  * The Kruskal class contains the method minSpanTree(), which implements
@@ -19,6 +20,42 @@ public class Kruskal {
    * @param g The weighted, undirected graph whose MST we want to compute.
    * @return A newly constructed WUGraph representing the MST of g.
    */
-  public static WUGraph minSpanTree(WUGraph g);
+  public static WUGraph minSpanTree(WUGraph g)
+  {
+    Object[] vertices = g.getVertices();
+    Edge[] edges = new Edge[g.edgeCount()];
+    WUGraph minSpanTree = new WUGraph();
+    for (Object vertex : vertices)
+    {
+      minSpanTree.addVertex(vertex);
+    }
 
+    //get all edges
+
+    //order edges based on length
+
+    //map the vertices to integers
+    DisjointSets set = new DisjointSets(vertices.length);
+    HashTableChained verticesToIntegers = new HashTableChained(vertices.length);
+    for (int v = 0; v < vertices.length; v++)
+    {
+      verticesToIntegers.insert(vertices[v], new Integer(v));
+    }
+    //iterate through edges
+    for (Edge e : edges)
+    {
+      Object u = e.getU();
+      Object v = e.getV();
+      int uInt = (int)verticesToIntegers.find(u).value();
+      int vInt = (int)verticesToIntegers.find(v).value();
+      //check if u can get to v
+      if (set.find(uInt) != set.find(vInt))
+      {
+        set.union(uInt, vInt);
+        //if not, add the edge
+        minSpanTree.addEdge(u, v, e.getWeight());
+      }
+    }
+    return minSpanTree;
+  }
 }
