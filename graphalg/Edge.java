@@ -31,4 +31,19 @@ public class Edge {
   {
     return weight;
   }
+
+  //compares solely based on weight
+  public int compareTo(Edge e)
+  {
+    if (e.getWeight() < getWeight())
+      return 1;
+    else if (e.getWeight() > getWeight())
+      return -1;
+    return 0;
+  }
+
+  public boolean equals(Edge e)
+  {
+    return (e.getU().equals(getU()) && e.getV().equals(getV()) && e.getWeight() == getWeight());
+  }
 }

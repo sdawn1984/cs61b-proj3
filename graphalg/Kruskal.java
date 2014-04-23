@@ -30,9 +30,12 @@ public class Kruskal {
       minSpanTree.addVertex(vertex);
     }
 
-    //get all edges
+    //get all edges. use getNeighbors and add each Edge to a HashTable. Check if
+      //the Edge exists [O(1) since its a HashTable], don't add it. Otherwise, add
+      //the Edge.
 
-    //order edges based on length
+    //order edges based on length. Use compareTo to compare the weights of the Edge
+      //and order accordingly.
 
     //map the vertices to integers
     DisjointSets set = new DisjointSets(vertices.length);
