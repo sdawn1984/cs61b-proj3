@@ -1,6 +1,6 @@
 package graphalg;
 
-public class Edge {
+public class Edge implements Comparable {
   protected Object u;
   protected Object v;
   protected int weight;
@@ -33,17 +33,31 @@ public class Edge {
   }
 
   //compares solely based on weight
-  public int compareTo(Edge e)
+  public int compareTo(Object o)
   {
-    if (e.getWeight() < getWeight())
+    Edge e = (Edge)o;
+    if (((Edge)e).getWeight() < getWeight())
       return 1;
-    else if (e.getWeight() > getWeight())
+    else if (((Edge)e).getWeight() > getWeight())
       return -1;
-    return 0;
+    else if (e.getU().equals(getU()) && e.getV().equals(getV()) && e.getWeight() == getWeight())
+      return 0;
+    return -1;
+  }
+
+  public int hashCode()
+  {
+    int vertices = Math.abs(u.hashCode() - v.hashCode() - weight);
+    return vertices;
   }
 
   public boolean equals(Edge e)
   {
     return (e.getU().equals(getU()) && e.getV().equals(getV()) && e.getWeight() == getWeight());
+  }
+
+  public String toString()
+  {
+    return getU().toString() + " " + getV().toString() + " " + getWeight();
   }
 }

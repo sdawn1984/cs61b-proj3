@@ -5,6 +5,9 @@ package graphalg;
 import graph.*;
 import set.*;
 import dict.*;
+import sorting.*;
+import list.*;
+
 
 /**
  * The Kruskal class contains the method minSpanTree(), which implements
@@ -23,16 +26,27 @@ public class Kruskal {
   public static WUGraph minSpanTree(WUGraph g)
   {
     Object[] vertices = g.getVertices();
-    Edge[] edges = new Edge[g.edgeCount()];
+    LinkedQueue edges = new LinkedQueue();
     WUGraph minSpanTree = new WUGraph();
     for (Object vertex : vertices)
     {
       minSpanTree.addVertex(vertex);
     }
 
-    //get all edges. use getNeighbors and add each Edge to a HashTable. Check if
-      //the Edge exists [O(1) since its a HashTable], don't add it. Otherwise, add
-      //the Edge.
+    //get all edges. use getNeighbors and add each Edge to a LinkedQueue
+    Object[] currentNeighborList;
+    int[] currentWeightList;
+    for (int counter = 0; counter < vertices.length; counter++) {
+    	Neighbors current = g.getNeighbors(vertices[counter]);
+    	currentNeighborList = current.neighborList;
+    	currentWeightList = current.weightList;
+      for (int i = 0; i < currentWeightList.length; i++)
+      {
+        Edge xEdge = new Edge(vertices[counter], currentNeighborList[i], currentWeightList[i]);
+        edges.enqueue(xEdge);
+      }
+    }
+    ListSorts.quickSort(edges);
 
     //order edges based on length. Use compareTo to compare the weights of the Edge
       //and order accordingly.
@@ -45,17 +59,22 @@ public class Kruskal {
       verticesToIntegers.insert(vertices[v], new Integer(v));
     }
     //iterate through edges
-    for (Edge e : edges)
+    while (!edges.isEmpty())
     {
+      Edge e = new Edge();
+      try {
+        e = (Edge)edges.dequeue();
+      } catch (QueueEmptyException exception) {
+        System.err.println(exception);
+      }
       Object u = e.getU();
       Object v = e.getV();
       int uInt = (int)verticesToIntegers.find(u).value();
       int vInt = (int)verticesToIntegers.find(v).value();
-      //check if u can get to v
+      // check if u can get to v
       if (set.find(uInt) != set.find(vInt))
       {
-        set.union(uInt, vInt);
-        //if not, add the edge
+        set.union(set.find(uInt), set.find(vInt));
         minSpanTree.addEdge(u, v, e.getWeight());
       }
     }
