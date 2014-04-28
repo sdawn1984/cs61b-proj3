@@ -46,10 +46,10 @@ public class Kruskal {
         edges.enqueue(xEdge);
       }
     }
-    ListSorts.quickSort(edges);
 
     //order edges based on length. Use compareTo to compare the weights of the Edge
       //and order accordingly.
+    ListSorts.quickSort(edges);
 
     //map the vertices to integers
     DisjointSets set = new DisjointSets(vertices.length);
@@ -58,6 +58,7 @@ public class Kruskal {
     {
       verticesToIntegers.insert(vertices[v], new Integer(v));
     }
+    
     //iterate through edges
     while (!edges.isEmpty())
     {
