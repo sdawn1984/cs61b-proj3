@@ -1,0 +1,12 @@
+Siddhanta Dange - bd
+Neeraj Baid
+
+The architecture of the WUGraph is set up as follows. 
+
+The Vertex hashtable hashes the objects themselves to a DListNode from a DList that keeps track of all the vertices in the graph. Each DListNode contains a pair- the first object contains the first object itself, while the second object contains a second DList, making the original DList an adjacency list.
+
+The Edge hashtable hashes a pair of vertices to another pair- the first contains another pair, which contains references to the DListNodes in the adjacency list. The second contains the weight of the edge. 
+
+This implementation allows the removeVertex() method to run in O(d) time, as I can lookup the vertex in the adjacency list, and traverse through all the verticies that are connected to it. By making a pair with each vertex connected to the vertex being removed, I can hash to the specific nodes in each Adjacency list (the node of the second vertex's edge, and the node of the vertex being removed in the second's adjacency list) using the Edge hashtable, and remove the nodes. This keeps the runtime in O(d). 
+
+The vertex hashtable allows one to access the node in the DList of every vertex at O(1) time, however, the reason to keep a Dlist of every vertex is to keep track of how many verticies are in the Graph in O(1) time, and generate a list of a ll verticies in O(|V|) time, as O(n) is the time it takes to traverse through a LinkedList.

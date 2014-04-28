@@ -15,10 +15,10 @@ import list.*;
 
 public class WUGraph {
 	
-	HashTableChained aList; 
-	HashTableChained eList; 
-	DList keys;
-	int edges;
+	private HashTableChained aList;   
+	private HashTableChained eList; 
+	private DList keys;
+	private int edges;
 
   /**
    * WUGraph() constructs a graph having no vertices or edges.
