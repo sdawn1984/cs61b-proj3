@@ -66,6 +66,8 @@ public class WUGraph {
 		try {
 			DListNode first = (DListNode) this.keys.front();
 			int counter = 0;
+			
+			//for each Vertex in the vertex DList, copy each item's reference to an array
 			while (first != null) {
 
 				try {
@@ -92,6 +94,8 @@ public class WUGraph {
 	 */
 	public void addVertex(Object vertex) {
 
+		/*if the vertex doesn't exist, push vertex on to vertex DList and add reference to
+		vertex hashtable*/
 		if (this.aList.find(vertex) == null) {
 			this.aList.insert(vertex,
 					this.keys.insertBack(new VertexPair(vertex, new DList())));
@@ -106,21 +110,32 @@ public class WUGraph {
 	 * Running time: O(d), where d is the degree of "vertex".
 	 */
 	public void removeVertex(Object vertex) {
+		
+		//remove vertex from vertex hashtable
 		Entry entry = this.aList.remove(vertex);
 		if (entry != null) {
 			DListNode node = (DListNode) entry.value();
 			DList list = (DList) ((VertexPair) node.item()).object2;
 			try {
 				DListNode first = (DListNode) list.front();
+				
+				/*for each vertex connected to the vertex being removed, remove edge 
+				from hashtable, and remove all references to vertex from other adjacency lists*/   
 				while (first != null) {
 
 					try {
+						
+						//find edge in hashtable
 						VertexPair key = new VertexPair(vertex, first.item());
 						Entry e = this.eList.find(key);
 						if (e != null) {
+							
+							//find references to dlistnodes in the vertex adjacency lists
 							VertexPair pair = (VertexPair) ((VertexPair) e
 									.value()).object1;
 							boolean skipped = false;
+							
+							//remove dlistnodes from adjancency lists
 							if (((DListNode) pair.object1).item().equals(
 									first.item())) {
 								if (((DListNode) pair.object2).item().equals(
@@ -136,6 +151,8 @@ public class WUGraph {
 							if (!skipped) {
 								first = (DListNode) first.next();
 							}
+							
+							//remove edge from edge hashtable
 							this.eList.remove(key);
 						} else {
 							first = (DListNode) first.next();
@@ -144,6 +161,8 @@ public class WUGraph {
 						break;
 					}
 				}
+				
+				//remove node form vertex dlist
 				node.remove();
 			} catch (Exception e) {
 			}
@@ -171,6 +190,8 @@ public class WUGraph {
 		Entry e = this.aList.find(vertex);
 
 		if (e != null) {
+			
+			//return length of adjacency list for vertex dlistnode in vertex dlist
 			DList list = (DList) ((VertexPair) ((DListNode) e.value()).item()).object2;
 			return list.length();
 		}
@@ -201,6 +222,8 @@ public class WUGraph {
 		Entry entry = this.aList.find(vertex);
 
 		if (entry != null) {
+			
+			//find vertex adjancency list in vertex DList
 			DList neighbors = (DList) ((VertexPair) ((DListNode) entry.value())
 					.item()).object2;
 			one = new Neighbors();
@@ -215,9 +238,13 @@ public class WUGraph {
 			}
 
 			try {
+				
+				//for each vertex in vertex adjacency list, copy object to array
 				DListNode first = (DListNode) neighbors.front();
 				for (int i = 0; i < neighborList.length; i++) {
 					neighborList[i] = first.item();
+					
+					//find weight of edge in edge hashtable and copy to array
 					VertexPair key = new VertexPair(vertex, first.item());
 					weights[i] = (Integer) ((VertexPair) this.eList.find(key)
 							.value()).object2;
@@ -252,15 +279,20 @@ public class WUGraph {
 			if (this.eList.find(new VertexPair(u, v)) != null) {
 				((VertexPair) this.eList.find(new VertexPair(u, v)).value()).object2 = weight;
 			} else {
+				
+				//insert vertices to back of vertex adjacency list
 				VertexPair pair = new VertexPair(u, v);
 				DListNode first = (DListNode) ((DList) ((VertexPair) ((DListNode) this.aList
 						.find(u).value()).item()).object2).insertBack(v);
 				DListNode sec = first;
+				
+				//insert reference to vertex 1 to adjacency list of vertex 2 if vertex 1 is not vertex 2
 				if (u != v) {
 					sec = (DListNode) ((DList) ((VertexPair) ((DListNode) this.aList
 							.find(v).value()).item()).object2).insertBack(u);
 				}
 
+				//add edge to edge hashtable
 				VertexPair option = new VertexPair(new VertexPair(first, sec),
 						weight);
 				this.eList.insert(pair, option);
@@ -277,9 +309,13 @@ public class WUGraph {
 	 * Running time: O(1).
 	 */
 	public void removeEdge(Object u, Object v) {
+		
+		//find edge in edge hashtable
 		if (this.eList.find(new VertexPair(u, v)) != null) {
 			VertexPair pair = (VertexPair) this.eList.remove(
 					new VertexPair(u, v)).value();
+			
+			//find each vertex dlistnodes and remove each other's references from each other's adjacency list
 			VertexPair nodes = (VertexPair) pair.object1;
 
 			((DListNode) nodes.object1).remove();
